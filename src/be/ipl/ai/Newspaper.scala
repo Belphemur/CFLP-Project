@@ -8,24 +8,27 @@ object Newspaper extends jacop {
     //Data
 
     //NewsPapers
-    val FT = IntVar("FT", 1, 4);
-    val Guardian = IntVar("Guardian", 1, 4);
-    val Express = IntVar("Express", 1, 4);
-    val Sun = IntVar("Sun", 1, 4);
+    val FT = IntVar("FT", 0, 97);
+    val Guardian = IntVar("Guardian", 0, 97);
+    val Express = IntVar("Express", 0, 97);
+    val Sun = IntVar("Sun", 0, 97);
 
     //Data
-    val newspapers = Array { FT; Guardian; Express; Sun };
-    val durations = Array {
-      IntVar("60", 60, 60);
-      IntVar("30", 30, 30);
-      IntVar("2", 2, 2);
-      IntVar("2", 2, 2)
-    };
+    val newspapers = Array[IntVar](FT, Guardian, Express, Sun);
+    val durations = Array[IntVar](60, 30, 2, 5);
     val one = IntVar("One", 1, 1);
     val ressources = for (i <- List.range(0, durations.size)) yield one;
-    val limits = IntVar("Algy", 1, 1); //Only Algy as reader
+    val limit = IntVar("Algy", 1, 1); //Only Algy as reader
 
     //Constraints
-    alldifferent(newspapers);
+    alldistinct(newspapers);
+
+    //Cumulatives
+    cumulative(newspapers, durations, ressources, limit);
+    def printSol(): Unit = {
+      for (v <- newspapers) print(v.id + " " + v.value + " ")
+      println()
+    }
+    val result = satisfy(search_split(newspapers, most_constrained), printSol)
   }
 }
