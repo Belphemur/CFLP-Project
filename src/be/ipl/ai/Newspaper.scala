@@ -1,6 +1,7 @@
 package be.ipl.ai
 
 import JaCoP.scala._
+import JaCoP.constraints._
 
 object Newspaper extends jacop {
   def main(args: Array[String]) {
@@ -22,6 +23,7 @@ object Newspaper extends jacop {
 
     //Constraints
     alldistinct(newspapers);
+    max(newspapers);
 
     //Cumulatives
     cumulative(newspapers, durations, ressources, limit);
@@ -29,6 +31,6 @@ object Newspaper extends jacop {
       for (v <- newspapers) print(v.id + " " + v.value + " ")
       println()
     }
-    val result = satisfy(search_split(newspapers, most_constrained), printSol)
+    val result = minimize(search(newspapers, first_fail, indomain_middle), sum(durations), printSol);
   }
 }
