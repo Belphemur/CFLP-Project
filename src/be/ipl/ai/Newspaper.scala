@@ -24,12 +24,20 @@ object Newspaper extends jacop {
     //Constraints
     alldistinct(newspapers);
 
+    //endtimes
+    val endTimes = for (i <- List.range(0, durations.size)) yield (newspapers(i) + durations(i));
+
     //Cumulatives
     cumulative(newspapers, durations, ressources, limit);
     def printSol(): Unit = {
-      for (v <- newspapers) print(v.id + " " + v.value + " ")
+      var i = 0;
+      for (v <- newspapers) {
+        print(v.id + " " + v.value)
+        print(" -> " + endTimes(i).value() + " ")
+        i = i + 1;
+      }
       println()
     }
-    val result = minimize(search(newspapers, first_fail, indomain_middle), max(newspapers), printSol);
+    val result = minimize(search(newspapers, first_fail, indomain_middle), max(endTimes), printSol);
   }
 }
