@@ -23,7 +23,6 @@ object Newspaper extends jacop {
 
     //Constraints
     alldistinct(newspapers);
-    max(newspapers);
 
     //Cumulatives
     cumulative(newspapers, durations, ressources, limit);
@@ -31,6 +30,6 @@ object Newspaper extends jacop {
       for (v <- newspapers) print(v.id + " " + v.value + " ")
       println()
     }
-    val result = minimize(search(newspapers, first_fail, indomain_middle), sum(durations), printSol);
+    val result = minimize(search(newspapers, first_fail, indomain_middle), max(newspapers), printSol);
   }
 }
