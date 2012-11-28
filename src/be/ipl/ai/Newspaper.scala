@@ -18,6 +18,6 @@ object Newspaper extends jacop {
       IntVar("2", 2, 2);
       IntVar("2", 2, 2)
     };
-    val limits = 1 //Only Algy as reader
+    val limits = IntVar("Algy", 1, 1); //Only Algy as reader
   }
 }
