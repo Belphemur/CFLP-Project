@@ -18,6 +18,8 @@ object Newspaper extends jacop {
       IntVar("2", 2, 2);
       IntVar("2", 2, 2)
     };
+    val one = IntVar("One", 1, 1);
+    val ressources = for (i <- List.range(0, durations.getSize())) yield one;
     val limits = IntVar("Algy", 1, 1); //Only Algy as reader
   }
 }
