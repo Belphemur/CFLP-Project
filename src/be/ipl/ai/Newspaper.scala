@@ -12,6 +12,12 @@ object Newspaper extends jacop {
 
     //Data
     val newspapers = { FT; Guardian; Express; Sun };
-    val durations = { 60; 30; 2; 5 };
+    val durations = {
+      IntVar("60", 60, 60);
+      IntVar("30", 30, 30);
+      IntVar("2", 2, 2);
+      IntVar("2", 2, 2)
+    };
+    val limits = 1 //Only Algy as reader
   }
 }
