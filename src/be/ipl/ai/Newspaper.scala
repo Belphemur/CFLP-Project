@@ -18,6 +18,9 @@ object Newspaper extends jacop {
     val newspapers = Array[IntVar](FT, Guardian, Express, Sun);
     val durations = Array[IntVar](60, 30, 2, 5);
     JSSP(newspapers, durations);
+    JSSP(addTime(newspapers,15,97), Array[IntVar](75,3,25,10));
+    JSSP(addTime(newspapers,15,97), Array[IntVar](5,15,10,30));
+    JSSP(addTime(newspapers,30,97), Array[IntVar](90,1,1,1));
    }
   
   def addTime(newspapers : Array[IntVar], shift : Int, max : Int) : Array[IntVar] = {
@@ -47,6 +50,8 @@ object Newspaper extends jacop {
       }
       println()
     }
-    return minimize(search(newspapers, first_fail, indomain_middle), max(endTimes), printSol);
+    val result = minimize(search(newspapers, first_fail, indomain_middle), max(endTimes));
+    printSol
+    return result;
   }
 }
