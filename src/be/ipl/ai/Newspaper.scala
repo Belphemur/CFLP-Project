@@ -19,9 +19,9 @@ object Newspaper extends jacop {
 
     //Durations
     val algyDur = Array[IntVar](60, 30, 2, 5);
-    val bertyDur = Array[IntVar](75, 3, 25, 10)
-    val charlieDur = Array[IntVar](5, 15, 10, 30)
-    val digbyDur = Array[IntVar](90, 1, 1, 1)
+    val bertyDur = Array[IntVar](25, 75, 3, 10)
+    val charlieDur = Array[IntVar](10, 15, 5, 30)
+    val digbyDur = Array[IntVar](1, 1, 1, 90)
 
     //All together
     val papers = setTasks(newspapers, 0, "Algy", algyDur) ::: setTasks(newspapers, 15, "Berty", bertyDur) ::: setTasks(newspapers, 15, "Charlie", charlieDur) ::: setTasks(newspapers, 30, "Digby", digbyDur);
