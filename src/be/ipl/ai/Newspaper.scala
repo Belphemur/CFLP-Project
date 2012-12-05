@@ -10,7 +10,7 @@ object Newspaper extends jacop {
     val durations = List[List[Int]](List[Int](60, 30, 2, 5), List[Int](25, 75, 3, 10), List[Int](10, 15, 5, 30), List[Int](1, 1, 1, 90));
     newspaperProblem(List[String]("Algy", "Berty", "Charlie", "Digby"), List[Int](0, 15, 15, 60), List[String]("Financial Times", "Guardian", "Express", "Sun"), durations)
   }
-  def newspaperProblem(readers: List[String], wakeUpTimes: List[Int], newspapers: List[String], durations: List[List[Int]]): List[Unit] = {
+  def newspaperProblem(readers: List[String], wakeUpTimes: List[Int], newspapers: List[String], durations: List[List[Int]]): List[IntVar] = {
     var startTimes = Array[IntVar]();
     var allDurations = List[IntVar]();
     for (i <- 0 to readers.size - 1) {
@@ -25,7 +25,21 @@ object Newspaper extends jacop {
     val nbNewsPaper = newspapers.size;
     val nbReaders = readers.size;
     val result = JSSP(startTimes, allDurations, nbNewsPaper, nbReaders)
-    return List();
+    var max = 0;
+    var generalResultReader = List[IntVar]();
+    for (i <- 0 to result.size - 1) {
+      var perReader = List[IntVar]();
+      val res = result(i);
+      if (res.value > max)
+        max = res.value
+      perReader = perReader ::: List[IntVar](res);
+      if (i + 1 % nbNewsPaper == 0) {
+        generalResultReader = generalResultReader ::: perReader;
+        perReader = List[IntVar]();
+      }
+    }
+
+    return List[IntVar](max) ::: generalResultReader;
   }
   def setTasks(newspapers: List[String], min: Int, name: String, durations: Array[IntVar]): List[IntVar] = {
     val one = IntVar("One", 1, 1);
