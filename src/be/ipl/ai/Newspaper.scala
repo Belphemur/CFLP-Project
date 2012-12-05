@@ -53,12 +53,13 @@ object Newspaper extends jacop {
 
     //endtimes
     val endTimes = for (i <- List.range(0, durations.size)) yield (startTimes(i) + durations(i));
-    for (currentRd <- 0 to nbReaders)
-      for (currentNp <- 0 to nbNewsPaper) {
+    for (currentRd <- 0 to nbReaders - 1)
+      for (currentNp <- 0 to nbNewsPaper - 1) {
         val curTask = currentRd + (currentNp * nbNewsPaper);
-        for (otherRd <- 0 to nbReaders) {
-          if (otherRd != currentRd) {
-            val otherTask = otherRd + (currentNp * nbNewsPaper);
+        for (otherNp <- 0 to nbNewsPaper - 1) {
+          if (otherNp != currentNp) {
+            val otherTask = currentRd + (otherNp * nbNewsPaper);
+            println(curTask + " -> " + otherTask)
             OR(endTimes(curTask) #<= startTimes(otherTask), endTimes(otherTask) #<= startTimes(curTask));
           }
         }
