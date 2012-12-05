@@ -18,13 +18,17 @@ object Newspaper extends jacop {
     val newspapers = Array[IntVar](FT, Guardian, Express, Sun);
     val durations = Array[IntVar](60, 30, 2, 5);
     JSSP(newspapers, durations);
-   
+   }
+  
+  def addTime(newspapers : Array[IntVar], shift : Int, max : Int) : Array[IntVar] = {
+    val shifted =  for (i <- List.range(0, newspapers.size)) yield new IntVar(newspapers(i).id,shift,max);
+    return shifted;
   }
   
   def JSSP(newspapers : Array[IntVar] , durations : Array[IntVar]) : Boolean = {
-     val one = IntVar("One", 1, 1);
+    val one = IntVar("One", 1, 1);
     val ressources = for (i <- List.range(0, durations.size)) yield one;
-    val limit = IntVar("Algy", 1, 1); //Only Algy as reader
+    val limit = IntVar("limit", 1, 1); 
 
     //Constraints
     alldistinct(newspapers);
