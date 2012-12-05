@@ -15,6 +15,7 @@ object Newspaper extends jacop {
   //Data
   val newspapers = Array[IntVar](FT, Guardian, Express, Sun);
   val nbNewsPaper = newspapers.size;
+  val nbReaders = 4;
   def main(args: Array[String]) {
 
     //Durations
@@ -52,11 +53,17 @@ object Newspaper extends jacop {
 
     //endtimes
     val endTimes = for (i <- List.range(0, durations.size)) yield (newspapers(i) + durations(i));
+    for (currentRd <- 0 to nbReaders)
+      for (currentNp <- 0 to nbNewsPaper) {
+        val curTask = currentRd + (currentNp * nbNewsPaper);
+        for (otherRd <- 0 to nbReaders) {
+          if (otherRd != currentRd) {
+            val otherTask = otherRd + (currentNp * nbNewsPaper);
+            OR(endTimes(curTask) #<= newspapers(otherTask), endTimes(otherTask) #<= newspapers(curTask));
+          }
+        }
 
-    for (i <- List.range(0, nbNewsPaper)) {
-      alldistinct(for (i <- List(0, 4, 8, 12)) yield newspapers(i))
-    }
-
+      }
     def printSol(): Unit = {
       var i = 0;
       for (v <- newspapers) {
