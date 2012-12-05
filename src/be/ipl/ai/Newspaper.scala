@@ -19,29 +19,38 @@ object Newspaper extends jacop {
 
     //Durations
     val algyDur = Array[IntVar](60, 30, 2, 5);
-    val bertyDur = (Array[IntVar](75, 3, 25, 10))
-    val charlieDur = (Array[IntVar](5, 15, 10, 30))
-    val digbyDur = (Array[IntVar](90, 1, 1, 1))
+    val bertyDur = Array[IntVar](75, 3, 25, 10)
+    val charlieDur = Array[IntVar](5, 15, 10, 30)
+    val digbyDur = Array[IntVar](90, 1, 1, 1)
 
     //All together
-    val papers = setTasks(newspapers, 0, 97, "Algy", algyDur) ::: setTasks(newspapers, 15, 97, "Berty", bertyDur) ::: setTasks(newspapers, 15, 97, "Charlie", charlieDur) ::: setTasks(newspapers, 30, 97, "Digby", digbyDur);
+    val papers = setTasks(newspapers, 0, "Algy", algyDur) ::: setTasks(newspapers, 15, "Berty", bertyDur) ::: setTasks(newspapers, 15, "Charlie", charlieDur) ::: setTasks(newspapers, 30, "Digby", digbyDur);
     val dur = algyDur ::: bertyDur ::: charlieDur ::: digbyDur;
     JSSP(papers, dur);
 
   }
 
-  def setTasks(newspapers: Array[IntVar], shift: Int, max: Int, name: String, durations: Array[IntVar]): Array[IntVar] = {
-    val shifted = for (i <- List.range(0, newspapers.size)) yield new IntVar(name + "_" + newspapers(i).id, shift, max);
+  def intVarSum(toSum: Array[IntVar]): Int = {
+    var i = 0
+    var sum = 0;
+    while (i < toSum.length) {
+      sum += toSum(i).value();
+      i += 1
+    }
+    return sum;
+  }
+  def setTasks(newspapers: Array[IntVar], min: Int, name: String, durations: Array[IntVar]): Array[IntVar] = {
+    val max = intVarSum(durations);
+    val tasks = for (i <- List.range(0, newspapers.size)) yield new IntVar(name + "_" + newspapers(i).id, min, min + max);
     val ressources = for (i <- List.range(0, newspapers.size)) yield one;
     //Cumulatives
-    cumulative(shifted, durations, ressources, limit);
-    return shifted;
+    cumulative(tasks, durations, ressources, limit);
+    //Constraints
+    alldistinct(tasks);
+    return tasks;
   }
 
   def JSSP(newspapers: Array[IntVar], durations: Array[IntVar]): Boolean = {
-
-    //Constraints
-    alldistinct(newspapers);
 
     //endtimes
     val endTimes = for (i <- List.range(0, durations.size)) yield (newspapers(i) + durations(i));
