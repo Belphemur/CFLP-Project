@@ -45,8 +45,6 @@ object Newspaper extends jacop {
     val ressources = for (i <- List.range(0, newspapers.size)) yield one;
     //Cumulatives
     cumulative(tasks, durations, ressources, limit);
-    //Constraints
-    alldistinct(tasks);
     return tasks;
   }
 
@@ -54,6 +52,10 @@ object Newspaper extends jacop {
 
     //endtimes
     val endTimes = for (i <- List.range(0, durations.size)) yield (newspapers(i) + durations(i));
+
+    for (i <- List.range(0, nbNewsPaper)) {
+      alldistinct(for (i <- List(0, 4, 8, 12)) yield newspapers(i))
+    }
 
     def printSol(): Unit = {
       var i = 0;
