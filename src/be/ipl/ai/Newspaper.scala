@@ -59,7 +59,7 @@ object Newspaper extends jacop {
         for (otherRd <- 0 to nbReaders - 1) {
           if (otherRd != curRd) {
             val otherTask = curNp + (otherRd * nbReaders);
-            println(curTask + " -> " + otherTask)
+            //println(curTask + " -> " + otherTask)
             OR(endTimes(curTask) #<= startTimes(otherTask), endTimes(otherTask) #<= startTimes(curTask));
           }
         }
