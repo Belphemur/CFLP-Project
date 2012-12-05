@@ -4,55 +4,53 @@ import JaCoP.scala._
 import JaCoP.constraints._
 
 object Newspaper extends jacop {
-  //Data
-  val limit = IntVar("limit", 1, 1);
-  val one = IntVar("One", 1, 1);
-  //NewsPapers
-  val FT = IntVar("FT", 0, 0);
-  val Guardian = IntVar("Guardian", 0, 0);
-  val Express = IntVar("Express", 0, 0);
-  val Sun = IntVar("Sun", 0, 0);
-  //Data
-  val newspapers = Array[IntVar](FT, Guardian, Express, Sun);
-  val nbNewsPaper = newspapers.size;
-  val nbReaders = 4;
+
   def main(args: Array[String]) {
 
-    //Durations
-    val algyDur = Array[IntVar](60, 30, 2, 5);
-    val bertyDur = Array[IntVar](25, 75, 3, 10)
-    val charlieDur = Array[IntVar](10, 15, 5, 30)
-    val digbyDur = Array[IntVar](1, 1, 1, 90)
-
-    //All together
-    val papers = setTasks(newspapers, 0, "Algy", algyDur) ::: setTasks(newspapers, 15, "Berty", bertyDur) ::: setTasks(newspapers, 15, "Charlie", charlieDur) ::: setTasks(newspapers, 60, "Digby", digbyDur);
-    val dur = algyDur ::: bertyDur ::: charlieDur ::: digbyDur;
-    JSSP(papers, dur);
-
+    val durations = List[List[Int]](List[Int](60, 30, 2, 5), List[Int](25, 75, 3, 10), List[Int](10, 15, 5, 30), List[Int](1, 1, 1, 90));
+    newspaperProblem(List[String]("Algy", "Berty", "Charlie", "Digby"), List[Int](0, 15, 15, 60), List[String]("Financial Times", "Guardian", "Express", "Sun"), durations)
   }
-
-  def intVarSum(toSum: Array[IntVar]): Int = {
-    var i = 0
-    var sum = 0;
-    while (i < toSum.length) {
-      sum += toSum(i).value();
-      i += 1
+  def newspaperProblem(readers: List[String], wakeUpTimes: List[Int], newspapers: List[String], durations: List[List[Int]]): List[Unit] = {
+    var startTimes = Array[IntVar]();
+    var allDurations = List[IntVar]();
+    for (i <- 0 to readers.size - 1) {
+      var dur = List[IntVar]();
+      val tempDur = durations(i);
+      for (j <- 0 to tempDur.size - 1) {
+        dur = dur ::: List[IntVar](tempDur(j));
+      }
+      allDurations = allDurations ::: dur;
+      startTimes = startTimes ::: setTasks(newspapers, wakeUpTimes(i), readers(i), dur);
     }
-    return sum;
+    val nbNewsPaper = newspapers.size;
+    val nbReaders = readers.size;
+    val result = JSSP(startTimes, allDurations, nbNewsPaper, nbReaders)
+    return List();
   }
-  def setTasks(newspapers: Array[IntVar], min: Int, name: String, durations: Array[IntVar]): Array[IntVar] = {
+  def setTasks(newspapers: List[String], min: Int, name: String, durations: Array[IntVar]): List[IntVar] = {
+    val one = IntVar("One", 1, 1);
+    def intVarSum(toSum: Array[IntVar]): Int = {
+      var i = 0
+      var sum = 0;
+      while (i < toSum.length) {
+        sum += toSum(i).value();
+        i += 1
+      }
+      return sum;
+    }
     val max = intVarSum(durations);
-    val tasks = for (i <- List.range(0, newspapers.size)) yield new IntVar(name + "_" + newspapers(i).id, min, min + max);
+    val tasks = for (i <- List.range(0, newspapers.size)) yield new IntVar(name + "_" + newspapers(i), min, min + max);
     val ressources = for (i <- List.range(0, newspapers.size)) yield one;
     //Cumulatives
-    cumulative(tasks, durations, ressources, limit);
+    cumulative(tasks, durations, ressources, one);
     return tasks;
   }
 
-  def JSSP(startTimes: Array[IntVar], durations: Array[IntVar]): Boolean = {
+  def JSSP(startTimes: Array[IntVar], durations: Array[IntVar], nbNewsPaper: Int, nbReaders: Int): List[IntVar] = {
 
     //endtimes
     val endTimes = for (i <- List.range(0, durations.size)) yield (startTimes(i) + durations(i));
+    //Constraint
     for (curNp <- 0 to nbNewsPaper - 1)
       for (curRd <- 0 to nbReaders - 1) {
         val curTask = curNp + (curRd * nbReaders);
@@ -76,8 +74,8 @@ object Newspaper extends jacop {
       }
       println()
     }
-    val result = minimize(search(startTimes, first_fail, indomain_middle), max(endTimes));
+    minimize(search(startTimes, first_fail, indomain_middle), max(endTimes));
     printSol
-    return result;
+    return startTimes;
   }
 }
