@@ -25,7 +25,7 @@ object Newspaper extends jacop {
     val digbyDur = Array[IntVar](1, 1, 1, 90)
 
     //All together
-    val papers = setTasks(newspapers, 0, "Algy", algyDur) ::: setTasks(newspapers, 15, "Berty", bertyDur) ::: setTasks(newspapers, 15, "Charlie", charlieDur) ::: setTasks(newspapers, 30, "Digby", digbyDur);
+    val papers = setTasks(newspapers, 0, "Algy", algyDur) ::: setTasks(newspapers, 15, "Berty", bertyDur) ::: setTasks(newspapers, 15, "Charlie", charlieDur) ::: setTasks(newspapers, 60, "Digby", digbyDur);
     val dur = algyDur ::: bertyDur ::: charlieDur ::: digbyDur;
     JSSP(papers, dur);
 
