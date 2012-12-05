@@ -49,24 +49,24 @@ object Newspaper extends jacop {
     return tasks;
   }
 
-  def JSSP(newspapers: Array[IntVar], durations: Array[IntVar]): Boolean = {
+  def JSSP(startTimes: Array[IntVar], durations: Array[IntVar]): Boolean = {
 
     //endtimes
-    val endTimes = for (i <- List.range(0, durations.size)) yield (newspapers(i) + durations(i));
+    val endTimes = for (i <- List.range(0, durations.size)) yield (startTimes(i) + durations(i));
     for (currentRd <- 0 to nbReaders)
       for (currentNp <- 0 to nbNewsPaper) {
         val curTask = currentRd + (currentNp * nbNewsPaper);
         for (otherRd <- 0 to nbReaders) {
           if (otherRd != currentRd) {
             val otherTask = otherRd + (currentNp * nbNewsPaper);
-            OR(endTimes(curTask) #<= newspapers(otherTask), endTimes(otherTask) #<= newspapers(curTask));
+            OR(endTimes(curTask) #<= startTimes(otherTask), endTimes(otherTask) #<= startTimes(curTask));
           }
         }
 
       }
     def printSol(): Unit = {
       var i = 0;
-      for (v <- newspapers) {
+      for (v <- startTimes) {
         print(v.id + " " + v.value)
         print(" -> " + endTimes(i).value() + " ")
         i = i + 1;
@@ -75,7 +75,7 @@ object Newspaper extends jacop {
       }
       println()
     }
-    val result = minimize(search(newspapers, first_fail, indomain_middle), max(endTimes));
+    val result = minimize(search(startTimes, first_fail, indomain_middle), max(endTimes));
     printSol
     return result;
   }
