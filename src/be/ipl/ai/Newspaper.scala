@@ -17,7 +17,12 @@ object Newspaper extends jacop {
     //Data
     val newspapers = Array[IntVar](FT, Guardian, Express, Sun);
     val durations = Array[IntVar](60, 30, 2, 5);
-    val one = IntVar("One", 1, 1);
+    JSSP(newspapers, durations);
+   
+  }
+  
+  def JSSP(newspapers : Array[IntVar] , durations : Array[IntVar]) : Boolean = {
+     val one = IntVar("One", 1, 1);
     val ressources = for (i <- List.range(0, durations.size)) yield one;
     val limit = IntVar("Algy", 1, 1); //Only Algy as reader
 
@@ -38,6 +43,6 @@ object Newspaper extends jacop {
       }
       println()
     }
-    val result = minimize(search(newspapers, first_fail, indomain_middle), max(endTimes), printSol);
+    return minimize(search(newspapers, first_fail, indomain_middle), max(endTimes), printSol);
   }
 }
