@@ -10,30 +10,16 @@ object Newspaper extends jacop {
     val durations = List[List[Int]](List[Int](60, 30, 2, 5), List[Int](25, 75, 3, 10), List[Int](10, 15, 5, 30), List[Int](1, 1, 1, 90));
     newspaperProblem(List[String]("Algy", "Berty", "Charlie", "Digby"), List[Int](0, 15, 15, 60), List[String]("Financial Times", "Guardian", "Express", "Sun"), durations)
   }
-  def newspaperProblem(readers: List[String], wakeUpTimes: List[Int], newspapers: List[String], durations: List[List[Int]]): List[IntVar] = {
-    val allDurations = for (i <- 0 to readers.size - 1) yield for (j <- 0 to durations(i).size - 1) yield new IntVar("Dur_" + durations(i)(j), durations(i)(j), durations(i)(j))
-    val startTimes = for (i <- 0 to readers.size - 1) yield setTasks(newspapers, wakeUpTimes(i), readers(i), allDurations(i));
+  def newspaperProblem(readers: List[String], wakeUpTimes: List[Int], newspapers: List[String], durations: List[List[Int]]): (Int, List[List[IntVar]]) = {
+    val allDurations = for (i <- List.range(0, readers.size)) yield for (j <- List.range(0, durations(i).size)) yield new IntVar("Dur_" + durations(i)(j), durations(i)(j), durations(i)(j))
+    val startTimes = for (i <- List.range(0, readers.size)) yield setTasks(newspapers, wakeUpTimes(i), readers(i), allDurations(i));
     val nbNewsPaper = newspapers.size;
     val nbReaders = readers.size;
     val result = JSSP(startTimes, allDurations, nbNewsPaper, nbReaders)
-    //    var max = 0;
-    //    var generalResultReader = List[IntVar]();
-    //    for (i <- 0 to result.size - 1) {
-    //      var perReader = List[IntVar]();
-    //      val res = result(i);
-    //      if (res.value > max)
-    //        max = res.value
-    //      perReader = perReader ::: List[IntVar](res);
-    //      if (i + 1 % nbNewsPaper == 0) {
-    //        generalResultReader = generalResultReader ::: perReader;
-    //        perReader = List[IntVar]();
-    //      }
-    //    }
-    //
-    //    return List[IntVar](max) ::: generalResultReader;
-    return List[IntVar]();
+    var max = result._2.flatten.foldLeft(0)((a, b) => if (a > b.value()) a else b.value())
+    return (max, result._1);
   }
-  def setTasks(newspapers: List[String], min: Int, name: String, durations: IndexedSeq[IntVar]): IndexedSeq[IntVar] = {
+  def setTasks(newspapers: List[String], min: Int, name: String, durations: List[IntVar]): List[IntVar] = {
     val one = IntVar("One", 1, 1);
 
     val max = durations.map(_.value()).foldLeft(0)(_ + _)
@@ -41,20 +27,13 @@ object Newspaper extends jacop {
     val ressources = for (i <- List.range(0, newspapers.size)) yield one;
     //Cumulatives
     cumulative(tasks, durations.toArray, ressources, one);
-    return tasks.toIndexedSeq;
+    return tasks;
   }
 
-  def JSSP(startTimes: IndexedSeq[IndexedSeq[IntVar]], durations: IndexedSeq[IndexedSeq[IntVar]], nbNewsPaper: Int, nbReaders: Int): IndexedSeq[IndexedSeq[IntVar]] = {
+  def JSSP(startTimes: List[List[IntVar]], durations: List[List[IntVar]], nbNewsPaper: Int, nbReaders: Int): (List[List[IntVar]], List[List[IntVar]]) = {
 
-    def concact(toConcact: IndexedSeq[IndexedSeq[IntVar]]): List[IntVar] = {
-      var times = List[IntVar]();
-      for (i <- List.range(0, toConcact.size))
-        for (j <- 0 to toConcact(i).size - 1)
-          times = times ::: List[IntVar](toConcact(i)(j))
-      return times;
-    }
     //endtimes
-    val endTimes = for (i <- List.range(0, startTimes.size)) yield for (j <- 0 to startTimes(i).size - 1) yield (durations(i)(j) + startTimes(i)(j));
+    val endTimes = for (i <- List.range(0, startTimes.size)) yield for (j <- List.range(0, startTimes(i).size)) yield (durations(i)(j) + startTimes(i)(j));
     //Constraint
     for (curRd <- 0 to nbReaders - 1)
       for (curNp <- 0 to nbNewsPaper - 1) {
@@ -74,8 +53,8 @@ object Newspaper extends jacop {
         println;
       }
     }
-    minimize(search(concact(startTimes), first_fail, indomain_middle), max(concact(endTimes.toIndexedSeq)));
+    minimize(search(startTimes.foldLeft(List[IntVar]())((b, a) => a ::: b), first_fail, indomain_middle), max(endTimes.foldLeft(List[IntVar]())((b, a) => a ::: b)));
     printSol
-    return startTimes;
+    return (startTimes, endTimes);
   }
 }
