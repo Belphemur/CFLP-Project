@@ -43,7 +43,7 @@ object Newspaper extends jacop {
     val tasks = for (i <- List.range(0, newspapers.size)) yield new IntVar(newspapers(i), min, min + max);
     val ressources = for (i <- List.range(0, newspapers.size)) yield one;
     //Cumulatives
-    cumulative(tasks, durations.toArray, ressources, one);
+    cumulative(tasks, durations, ressources, one);
     return tasks;
   }
 
@@ -56,22 +56,13 @@ object Newspaper extends jacop {
       for (curNp <- 0 to nbNewsPaper - 1) {
         for (otherRd <- 0 to nbReaders - 1) {
           if (otherRd != curRd) {
-            //println(curTask + " -> " + otherTask)
             OR(endTimes(curRd)(curNp) #<= startTimes(otherRd)(curNp), endTimes(otherRd)(curNp) #<= startTimes(curRd)(curNp));
           }
         }
 
       }
-    def printSol(): Unit = {
-      for (curRd <- 0 to nbReaders - 1) {
-        for (curNp <- 0 to nbNewsPaper - 1) {
-          print(startTimes(curRd)(curNp).id + " " + startTimes(curRd)(curNp).value + " -> " + endTimes(curRd)(curNp).value + " ")
-        }
-        println;
-      }
-    }
+
     minimize(search(startTimes.foldLeft(List[IntVar]())((b, a) => a ::: b), first_fail, indomain_middle), max(endTimes.foldLeft(List[IntVar]())((b, a) => a ::: b)));
-    printSol
     return (startTimes, endTimes);
   }
 }
